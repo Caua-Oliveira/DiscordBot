@@ -1,11 +1,10 @@
 import discord
-import os
-import json
 from discord.ext import commands, tasks
 from itertools import cycle
 rekt = 989402899660558376
+eu = 989402899660558376
 
-TOKEN1 = 'OTg5NDA5NDM5OTU2MjEzODMw.GW_ISE.n6ioWz_sKL0kEg-QGbm7Sfi8JddGf-vW7qFmsM'
+TOKEN1 = ''
 
 games = cycle(['Minecraft', 'Hytale', 'Half-Life 3', 'Tetris', 'Roblox'])
 
@@ -19,8 +18,10 @@ class MyBot(commands.Bot):
         )
 
     async def setup_hook(self):
-        await client.load_extension(f'commands.anime_commands.waifu_commands')
         await client.load_extension(f'commands.anime_commands.mal_commands')
+        await client.load_extension(f'commands.anime_commands.waifu_commands')
+        await client.tree.sync(guild=discord.Object(id=rekt))
+        await client.tree.sync(guild=discord.Object(id=eu))
 
 
     async def on_ready(self):

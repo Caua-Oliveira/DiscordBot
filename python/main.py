@@ -1,8 +1,6 @@
 import discord
 from discord.ext import commands, tasks
 from itertools import cycle
-rekt = 989402899660558376
-eu = 989402899660558376
 
 TOKEN1 = ''
 
@@ -20,15 +18,11 @@ class MyBot(commands.Bot):
     async def setup_hook(self):
         await client.load_extension(f'commands.anime_commands.mal_commands')
         await client.load_extension(f'commands.anime_commands.waifu_commands')
-        await client.tree.sync(guild=discord.Object(id=rekt))
-        await client.tree.sync(guild=discord.Object(id=eu))
-
+        await self.tree.sync()
 
     async def on_ready(self):
         gameschange.start()
         print('I AM LOGGED IN!')
-
-
 
 @tasks.loop(seconds=300)
 async def gameschange():

@@ -4,9 +4,6 @@ from discord import app_commands
 from discord.ext import commands
 from discord.app_commands import Choice
 
-rekt = 991147121946402886
-eu = 989402899660558376
-
 class MalCommands(commands.Cog):
 
     def __init__(self, client:commands.Bot) -> None:
@@ -82,4 +79,4 @@ class MalCommands(commands.Cog):
 
 
 async def setup(client: commands.Bot) -> None:
-    await client.add_cog(MalCommands(client), guilds = [discord.Object(id= rekt), discord.Object(id=eu)])
+    await client.add_cog(MalCommands(client))

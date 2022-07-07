@@ -4,9 +4,6 @@ from discord import app_commands
 from discord.ext import commands
 from discord.app_commands import Choice
 
-rekt = 991147121946402886
-eu = 989402899660558376
-
 class ReloadButton(discord.ui.View):
     def __init__(self, filtro:str, categoria:str):
         super().__init__()
@@ -46,4 +43,7 @@ class WaifuCommands(commands.Cog):
 
 
 async def setup(client: commands.Bot) -> None:
-    await client.add_cog(WaifuCommands(client), guilds = [discord.Object(id= rekt), discord.Object(id=eu)])
+    await client.add_cog(WaifuCommands(client))
+
+
+

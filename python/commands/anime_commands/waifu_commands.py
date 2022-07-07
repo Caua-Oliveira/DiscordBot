@@ -10,11 +10,14 @@ class ReloadButton(discord.ui.View):
         self.filtro=filtro
         self.categoria=categoria
 
-    @discord.ui.button(label='🔄', style=discord.ButtonStyle.blurple)
+    @discord.ui.button(label='gerar', style=discord.ButtonStyle.blurple)
     async def reload(self, interaction: discord.Interaction, button: discord.ui.Button):
         r = requests.get(f'https://api.waifu.pics/{self.filtro}/{self.categoria}')
         content = r.text[8:-3]
-        await interaction.response.edit_message(content=content)
+        embed = discord.Embed(color=discord.Colour.blue())
+        embed.set_author(name=f'{self.filtro.upper()} • {self.categoria.capitalize()}')
+        embed.set_image(url=content)
+        await interaction.response.edit_message(embed=embed)
 
 class WaifuCommands(commands.Cog):
 
@@ -38,7 +41,10 @@ class WaifuCommands(commands.Cog):
         r = requests.get(f'https://api.waifu.pics/{filtro}/{categoria}')
         content = r.text[8:-3]
         view = ReloadButton(filtro,categoria)
-        await interaction.response.send_message(content, view=view)
+        embed = discord.Embed(color=discord.Colour.blue())
+        embed.set_author(name=f'{filtro.upper()} • {categoria.capitalize()}')
+        embed.set_image(url=content)
+        await interaction.response.send_message(embed=embed, view=view)
         await view.wait()
 
 

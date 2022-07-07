@@ -18,6 +18,7 @@ class MyBot(commands.Bot):
     async def setup_hook(self):
         await client.load_extension(f'commands.anime_commands.mal_commands')
         await client.load_extension(f'commands.anime_commands.waifu_commands')
+        await client.load_extension(f'commands.misc_commands.util')
         await self.tree.sync()
 
     async def on_ready(self):

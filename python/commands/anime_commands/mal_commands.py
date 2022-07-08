@@ -1,8 +1,10 @@
 import discord
 import requests
+from pprint import pprint
 from discord import app_commands
 from discord.ext import commands
 from discord.app_commands import Choice
+
 
 class MalCommands(commands.Cog):
 
@@ -37,7 +39,6 @@ class MalCommands(commands.Cog):
         except IndexError as index_error:
             print(index_error)
             studio = 'Não expecificado'
-
         genres = [t['data'][page]['genres'][generos]['name'] for generos in range(len(t['data'][page]['genres']))]
         if len(genres) == 0:
             genres.append('Não expecificado')
@@ -49,7 +50,6 @@ class MalCommands(commands.Cog):
             synonyms.insert(0, english_title)
         else:
             english_title = ' '
-
         japanese_title = t['data'][page]['title_japanese']
         if japanese_title != None:
             synonyms.append(japanese_title)
@@ -59,9 +59,7 @@ class MalCommands(commands.Cog):
         type = t['data'][page]['type']
 
 
-
         embed = discord.Embed(title=f"{title} ({english_title})", url=url, description=synopsis,color=discord.Colour.blue())
-
         embed.set_author(name=f"Tipo: {type} • Status: {status} • Nota: {score} • Rank: {rank}",
                          icon_url=mal)
         embed.set_thumbnail(
@@ -76,7 +74,6 @@ class MalCommands(commands.Cog):
         embed.add_field(name="**Saiba mais**", value=f"[Myanimelist Page]({url})", inline=False)
         embed.set_footer(icon_url='https://cdn.discordapp.com/avatars/989409439956213830/b9336d36eb09936ca2405830600c1bc3.webp?size=1024', text="De: myanimelist.com")
         await interaction.response.send_message(embed=embed)
-
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(MalCommands(client))

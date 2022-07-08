@@ -1,8 +1,7 @@
 import discord
+import json
 from discord.ext import commands, tasks
 from itertools import cycle
-
-TOKEN1 = ''
 
 games = cycle(['Minecraft', 'Hytale', 'Half-Life 3', 'Tetris', 'Roblox'])
 
@@ -14,11 +13,15 @@ class MyBot(commands.Bot):
             intents = discord.Intents.all(),
             application_id=989409439956213830
         )
+        self.initial_extensions = [
+            'commands.anime_commands.mal_commands',
+            'commands.anime_commands.waifu_commands',
+            'commands.misc_commands.util'
+        ]
 
     async def setup_hook(self):
-        await client.load_extension(f'commands.anime_commands.mal_commands')
-        await client.load_extension(f'commands.anime_commands.waifu_commands')
-        await client.load_extension(f'commands.misc_commands.util')
+        for ext in self.initial_extensions:
+            await client.load_extension(ext)
         await self.tree.sync()
 
     async def on_ready(self):
@@ -33,4 +36,8 @@ def is_it_me(ctx):  # Comandos que só eu posso usar
     return ctx.author.id == 325049357063815176
 
 client=MyBot()
-client.run(TOKEN1)
+with open('token.json') as f:
+    data = json.load(f)
+    TOKEN = data["TOKEN"]
+
+client.run(TOKEN)

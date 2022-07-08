@@ -23,20 +23,38 @@ class WaifuCommands(commands.Cog):
     def __init__(self, client:commands.Bot) -> None:
         self.client = client
 
-#WAIFU COMMAND
+#WAIFU COMMAND INFO
     @app_commands.command(name='waifu', description='Gere imagens de waifus!')
     @app_commands.describe(
         categoria = 'Categoria da imagem')
     @app_commands.choices(
         categoria=[
-            Choice(name='waifu', value='waifu'), Choice(name='neko', value='neko'), Choice(name='smile', value='smile'),
-            Choice(name='hug', value='hug'), Choice(name='cuddle', value='cuddle'), Choice(name='cry', value='cry'),
-            Choice(name='bully', value='bully'), Choice(name='kiss', value='kiss'), Choice(name='pat', value='pat'),
-            Choice(name='smug', value='smug'), Choice(name='bonk', value='bonk'), Choice(name='blush', value='blush'),
-            Choice(name='dance', value='dance'), Choice(name='poke', value='poke'),Choice(name='wink', value='wink'),
-            Choice(name='megumin', value='megumin'), Choice(name='happy', value='happy'),Choice(name='kick', value='kick'),
-            Choice(name='slap', value='slap'),Choice(name='bite', value='bite'),Choice(name='nom', value='nom'),
-            Choice(name='wave', value='wave')])
+            Choice(name='waifu', value='waifu'),
+            Choice(name='neko', value='neko'),
+            Choice(name='smile', value='smile'),
+            Choice(name='hug', value='hug'),
+            Choice(name='cuddle', value='cuddle'),
+            Choice(name='cry', value='cry'),
+            Choice(name='bully', value='bully'),
+            Choice(name='kiss', value='kiss'),
+            Choice(name='pat', value='pat'),
+            Choice(name='smug', value='smug'),
+            Choice(name='bonk', value='bonk'),
+            Choice(name='blush', value='blush'),
+            Choice(name='dance', value='dance'),
+            Choice(name='poke', value='poke'),
+            Choice(name='wink', value='wink'),
+            Choice(name='megumin', value='megumin'),
+            Choice(name='happy', value='happy'),
+            Choice(name='kick', value='kick'),
+            Choice(name='slap', value='slap'),
+            Choice(name='bite', value='bite'),
+            Choice(name='nom', value='nom'),
+            Choice(name='wave', value='wave')
+        ]
+    )
+
+    #execute
     async def waifu(self, interaction: discord.Interaction,categoria:str):
         r = requests.get(f'https://api.waifu.pics/sfw/{categoria}')
         content = r.text[8:-3]
@@ -44,6 +62,7 @@ class WaifuCommands(commands.Cog):
         embed = discord.Embed(color=discord.Colour.blue())
         embed.set_author(name=f'SFW • {categoria.capitalize()}')
         embed.set_image(url=content)
+
         await interaction.response.send_message(embed=embed, view=view)
         await view.wait()
 

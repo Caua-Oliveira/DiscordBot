@@ -18,15 +18,16 @@ class Util(commands.Cog):
             embed = discord.Embed(color=discord.Colour.blue())
             embed.add_field(name=f'🖼 {interaction.user.name}\n ⠀' ,value=f'**Clique [aqui]({avatarUrl}) para baixar a imagem.**', inline=False)
             embed.set_image(url=avatarUrl)
+
             await interaction.response.send_message(embed=embed)
 
         else:
 
             avatarUrl = member.avatar.url
             embed = discord.Embed(color=discord.Colour.blue())
-            embed.add_field(name=f'🖼 {member.name}\n ⠀',
-                            value=f'**Clique [aqui]({avatarUrl}) para baixar a imagem.**', inline=False)
+            embed.add_field(name=f'🖼 {member.name}\n ⠀',value=f'**Clique [aqui]({avatarUrl}) para baixar a imagem.**', inline=False)
             embed.set_image(url=avatarUrl)
+
             await interaction.response.send_message(embed=embed)
 
 async def setup(client: commands.Bot) -> None:

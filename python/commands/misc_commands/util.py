@@ -1,7 +1,9 @@
 import discord
+import requests
 from discord import app_commands
 from discord.ext import commands
 from discord.app_commands import Choice
+from pprint import pprint
 
 
 class Util(commands.Cog):
@@ -29,6 +31,8 @@ class Util(commands.Cog):
             embed.set_image(url=avatarUrl)
 
             await interaction.response.send_message(embed=embed)
+
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Util(client))

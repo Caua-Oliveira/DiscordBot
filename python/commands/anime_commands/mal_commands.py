@@ -4,12 +4,13 @@ from discord import app_commands
 from discord.ext import commands
 
 
+
 #Function to get anime info
-def get_anime(page:int,nome:str):
+def get_anime(page:int, search:str):
 
     # Anime Info
 
-    r = requests.get(f'http://staging.jikan.moe/v4/anime?q={nome}&nsfw')
+    r = requests.get(f'http://staging.jikan.moe/v4/anime?q={search}&nsfw')
     t = r.json()
     entries = t['pagination']['items']['count']
     if entries <= 15:
@@ -55,29 +56,30 @@ def get_anime(page:int,nome:str):
     #EMBED______________________________________________________________________________________________
 
     embed = discord.Embed(title=f"{title} ({english_title})", url=url, description=synopsis,color=discord.Colour.blue())
-    embed.set_author(name=f"Tipo: {type} • Status: {status} • Nota: {score} • Rank: {rank}",icon_url=mal)
+    embed.set_author(name=f"Type: {type} • Status: {status} • Score: {score} • Rank: {rank}",icon_url=mal)
     embed.set_thumbnail(url=image)
-    embed.add_field(name="**Episódios**", value=f'`{episodes}`', inline=True)
-    embed.add_field(name="**Duração**", value=f'`{duration}`', inline=True)
-    embed.add_field(name="**Data de lançamento**", value=f'`{aired}`', inline=False)
-    embed.add_field(name="**Fonteㅤ**", value=f'`{source}`', inline=True)
-    embed.add_field(name="**Estúdio**", value=f'`{studio}`', inline=True)
-    embed.add_field(name="**Gêneros**", value=' • '.join(f'`{x}`' for x in genres), inline=False)
-    embed.add_field(name="**Nomes alternativos**", value=' • '.join(f'`{x}`' for x in synonyms), inline=False)
-    embed.add_field(name="**Saiba mais**", value=f"[Myanimelist Page]({url})", inline=False)
-    embed.set_footer(icon_url='https://cdn.discordapp.com/avatars/989409439956213830/b9336d36eb09936ca2405830600c1bc3.webp?size=1024', text=f"Provided by https://myanimelist.net/  •  Page: {page+1}/{entries} ")
+    embed.add_field(name="**Episodes**", value=f'`{episodes}`', inline=True)
+    embed.add_field(name="**Duration**", value=f'`{duration}`', inline=True)
+    embed.add_field(name="**Release date**", value=f'`{aired}`', inline=False)
+    embed.add_field(name="**Sourceㅤ**", value=f'`{source}`', inline=True)
+    embed.add_field(name="**Studio**", value=f'`{studio}`', inline=True)
+    embed.add_field(name="**Genres**", value=' • '.join(f'`{x}`' for x in genres), inline=False)
+    embed.add_field(name="**Alternative names**", value=' • '.join(f'`{x}`' for x in synonyms), inline=False)
+    embed.add_field(name="**Find more**", value=f"[Myanimelist Page]({url})", inline=False)
+    embed.set_footer(text=f"Provided by https://myanimelist.net/  •  Page: {page+1}/{entries} ")
 
     return embed
 
 
 #Buttons from anime command
 class PassButttons(discord.ui.View):
-    def __init__(self, page:int, nome:str, entries:int):
-        super().__init__(timeout=60.0)
+    def __init__(self, page:int, search:str, entries:int):
+        super().__init__(timeout=30.0)
         self.response = None
         self.page=page
-        self.nome=nome
+        self.search=search
         self.entries=entries
+
 
     async def on_timeout(self) -> None:  #Deactivate buttons after timeout
         for child in self.children:
@@ -89,7 +91,7 @@ class PassButttons(discord.ui.View):
     async def first(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.page=0
 
-        await interaction.response.edit_message(embed=get_anime(self.page, self.nome))
+        await interaction.response.edit_message(embed=get_anime(self.page, self.search))
 
 
     #Previous Entrie
@@ -101,7 +103,7 @@ class PassButttons(discord.ui.View):
             self.page -= 1
 
 
-        await interaction.response.edit_message(embed=get_anime(self.page, self.nome))
+        await interaction.response.edit_message(embed=get_anime(self.page, self.search))
 
     #Next Entrie
     @discord.ui.button(label='▶', style=discord.ButtonStyle.blurple)
@@ -111,7 +113,7 @@ class PassButttons(discord.ui.View):
         else:
             self.page += 1
 
-        await interaction.response.edit_message(embed=get_anime(self.page,self.nome))
+        await interaction.response.edit_message(embed=get_anime(self.page, self.search))
 
 
     #Last Entrie
@@ -119,7 +121,7 @@ class PassButttons(discord.ui.View):
     async def last(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.page=self.entries-1
 
-        await interaction.response.edit_message(embed=get_anime(self.page, self.nome))
+        await interaction.response.edit_message(embed=get_anime(self.page, self.search))
 
 
     #Deactivate buttons
@@ -142,12 +144,12 @@ class MalCommands(commands.Cog):
 
 
     #ANIME COMMAND INFO
-    @app_commands.command(name='anime', description='Ache informações sobre animes!')
-    @app_commands.describe(nome='Nome do anime')
+    @app_commands.command(name='anime', description='Searchs for an anime and display information about it!')
+    @app_commands.describe(search='Name of the anime')
 
-    async def anime(self, interaction: discord.Interaction,nome:str):
+    async def anime(self, interaction: discord.Interaction, search:str):
         page=0
-        r = requests.get(f'http://staging.jikan.moe/v4/anime?q={nome}&nsfw')
+        r = requests.get(f'http://staging.jikan.moe/v4/anime?q={search}&nsfw')
         t = r.json()
         entries = t['pagination']['items']['count']
         if entries <= 15:
@@ -157,8 +159,8 @@ class MalCommands(commands.Cog):
 
 
         #Button call
-        view=PassButttons(page,nome,entries)
-        await interaction.response.send_message(embed=get_anime(page,nome), view=view)
+        view=PassButttons(page,search,entries)
+        await interaction.response.send_message(embed=get_anime(page,search), view=view)
         out = await interaction.original_message()
         view.response= out
 

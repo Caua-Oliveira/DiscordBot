@@ -9,14 +9,14 @@ class Util(commands.Cog):
     def __init__(self, client:commands.Bot) -> None:
         self.client = client
 
-    @app_commands.command(name='avatar', description='Veja a imagem de perfil de alguem!')
+    @app_commands.command(name='avatar', description="See someone's profile picture!")
     async def avatar(self, interaction: discord.Interaction, member: discord.Member = None):
 
         if member == None:
 
             avatarUrl = interaction.user.avatar.url
             embed = discord.Embed(color=discord.Colour.blue())
-            embed.add_field(name=f'🖼 {interaction.user.name}\n ⠀' ,value=f'**Clique [aqui]({avatarUrl}) para baixar a imagem.**', inline=False)
+            embed.add_field(name=f'🖼 {interaction.user.name}\n ⠀' ,value=f'**Click [here]({avatarUrl}) to download the image.**', inline=False)
             embed.set_image(url=avatarUrl)
 
             await interaction.response.send_message(embed=embed)
@@ -25,7 +25,7 @@ class Util(commands.Cog):
 
             avatarUrl = member.avatar.url
             embed = discord.Embed(color=discord.Colour.blue())
-            embed.add_field(name=f'🖼 {member.name}\n ⠀',value=f'**Clique [aqui]({avatarUrl}) para baixar a imagem.**', inline=False)
+            embed.add_field(name=f'🖼 {member.name}\n ⠀',value=f'**Click [here]({avatarUrl}) to download the image.**', inline=False)
             embed.set_image(url=avatarUrl)
 
             await interaction.response.send_message(embed=embed)

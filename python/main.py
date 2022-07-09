@@ -18,7 +18,7 @@ class MyBot(commands.Bot):
             'commands.anime_commands.waifu_commands',
             'commands.misc_commands.util'
         ]
-
+    #Syncing extensions
     async def setup_hook(self):
         for ext in self.initial_extensions:
             await client.load_extension(ext)
@@ -32,9 +32,10 @@ class MyBot(commands.Bot):
 async def gameschange():
     await client.change_presence(activity=discord.Game(next(games)))
 
-def is_it_me(ctx):  # Comandos que só eu posso usar
+def is_it_me(ctx):  # Commands only i can use
     return ctx.author.id == 325049357063815176
 
+#Starting the bot
 client=MyBot()
 with open('token.json') as f:
     data = json.load(f)

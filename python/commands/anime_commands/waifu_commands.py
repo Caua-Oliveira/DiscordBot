@@ -6,8 +6,14 @@ from discord.app_commands import Choice
 
 class ReloadButton(discord.ui.View):
     def __init__(self, categoria:str):
-        super().__init__()
+        super().__init__(timeout=30.0)
         self.categoria=categoria
+        self.response=None
+
+    async def on_timeout(self) -> None:  #Deactivate buttons after timeout
+        for child in self.children:
+            child.disabled = True
+        await self.response.edit(view=self)
 
     @discord.ui.button(label='Gerar', style=discord.ButtonStyle.blurple)
     async def reload(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -58,13 +64,16 @@ class WaifuCommands(commands.Cog):
     async def waifu(self, interaction: discord.Interaction,categoria:str):
         r = requests.get(f'https://api.waifu.pics/sfw/{categoria}')
         content = r.text[8:-3]
-        view = ReloadButton(categoria)
+
         embed = discord.Embed(color=discord.Colour.blue())
         embed.set_author(name=f'SFW • {categoria.capitalize()}')
         embed.set_image(url=content)
 
+        view = ReloadButton(categoria)
         await interaction.response.send_message(embed=embed, view=view)
-        await view.wait()
+        out = await interaction.original_message()
+        view.response = out
+
 
 
 async def setup(client: commands.Bot) -> None:

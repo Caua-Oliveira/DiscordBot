@@ -1,6 +1,7 @@
 import discord
 import requests
 import urllib.parse
+from pprint import pprint
 from discord import app_commands
 from discord.ext import commands
 from discord.app_commands import Choice
@@ -79,8 +80,12 @@ class WaifuCommands(commands.Cog):
 
     @app_commands.command(name='find-anime', description="Find anime by the image that you use!")
     async def find_anime(self, interaction: discord.Interaction, image: discord.Attachment):
+
+        await interaction.response.defer()
         image = image.url
         r = requests.get("https://api.trace.moe/search?url={}".format(urllib.parse.quote_plus(image))).json()
+        if r['error'] != '':
+            return await interaction.response.send_message('Queue is full', ephemeral=True)
         image2 = r['result'][0]['image']
         episode = r['result'][0]['episode']
         video = r['result'][0]['video']
@@ -89,16 +94,18 @@ class WaifuCommands(commands.Cog):
         myanimelist = f'https://myanimelist.net/anime/{id}'
         similarity = r['result'][0]['similarity'] * 100
         similarity = "{:.2f}".format(similarity)
+
+        #Find Anime Name
         query = '''
             query ($id: Int) { # Define which variables will be used in the query (id)
-              Media (id: $id, type: ANIME) { # Insert our variables into the query arguments (id) (type: ANIME is hard-coded in the query)
+                Media (id: $id, type: ANIME) { # Insert our variables into the query arguments (id) (type: ANIME is hard-coded in the query)
                 id
                 title {
-                  romaji
-                  english
-                  native
+                    romaji
+                    english
+                    native
                 }
-              }
+                }
             }
             '''
 
@@ -111,7 +118,6 @@ class WaifuCommands(commands.Cog):
         response = requests.post(url, json={'query': query, 'variables': variables})
         title = response.json()['data']['Media']['title']['english']
 
-
         # Embed
 
         embed = discord.Embed(description=f"Title: **{title}** \nSimilarity: **{similarity}%** \nEpisode: **{episode}**  \nShort Clip: [**Link**]({video})  \nAnilist: [**Link**]({anilist})  \nMyanimelist: [**Link**]({myanimelist})",color=discord.Colour.blue())
@@ -119,8 +125,7 @@ class WaifuCommands(commands.Cog):
         embed.set_image(url=image2)
         embed.set_footer(icon_url=interaction.user.avatar.url, text=f'Requested by: {interaction.user.name}')
 
-        await interaction.response.send_message(embed=embed)
-
+        await interaction.edit_original_message(embed=embed)
 
 
 async def setup(client: commands.Bot) -> None:

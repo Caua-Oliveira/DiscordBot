@@ -91,7 +91,6 @@ class WaifuCommands(commands.Cog):
         video = r['result'][0]['video']
         id = r['result'][0]['anilist']
         anilist = f'https://anilist.co/anime/{str(id)}/'
-        myanimelist = f'https://myanimelist.net/anime/{id}'
         similarity = r['result'][0]['similarity'] * 100
         similarity = "{:.2f}".format(similarity)
 
@@ -105,6 +104,7 @@ class WaifuCommands(commands.Cog):
                     english
                     native
                 }
+                idMal
                 }
             }
             '''
@@ -117,6 +117,8 @@ class WaifuCommands(commands.Cog):
         # Make the HTTP Api request
         response = requests.post(url, json={'query': query, 'variables': variables})
         title = response.json()['data']['Media']['title']['english']
+        idmal = response.json()['data']['Media']['idMal']
+        myanimelist = f'https://myanimelist.net/anime/{idmal}'
 
         # Embed
 

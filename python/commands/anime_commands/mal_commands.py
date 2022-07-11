@@ -2,129 +2,214 @@ import discord
 import requests
 from discord import app_commands
 from discord.ext import commands
+from pprint import pprint
 
 
+def get_anime(page: int, search: str):
 
-#Function to get anime info
-def get_anime(page:int, search:str):
+    query = '''
+    query ($id: Int, $page: Int, $perPage: Int, $search: String) {
+        Page (page: $page, perPage: $perPage) {
+            pageInfo {
+                total
+                currentPage
+                lastPage
+                hasNextPage
+                perPage
+            }
+            media (id: $id, search: $search, type: ANIME) {
+                id
+                title {
+                    romaji
+                    english
+                }
+                idMal
+                format
+                type
+                status
+                description
+                startDate{
+                    year
+                    month
+                    day
+                }
+                episodes
+                duration
+                source
+                coverImage{
+                    large
+                    color
+                }
+                bannerImage
+                genres
+                synonyms
+                meanScore
+                studios(isMain: true){
+                    nodes{
+                        name
+                    }
+                }
+                isAdult
+                nextAiringEpisode{
+                    airingAt
+                }
+                siteUrl
+                }
+            }
 
-    # Anime Info
+    }
 
-    r = requests.get(f'http://staging.jikan.moe/v4/anime?q={search}&nsfw')
-    t = r.json()
-    entries = t['pagination']['items']['count']
-    if entries <= 15:
-        pass
-    else:
-        entries=15
-    url = t['data'][page]['url']
-    mal = 'https://cdn.discordapp.com/attachments/989374831487229952/993011826109448223/unknown.png'
-    title = t['data'][page]['title']
-    score = t['data'][page]['score']
-    if score == None:
-        score = '??'
-    image = t['data'][page]['images']['jpg']['image_url']
-    episodes = str(t['data'][page]['episodes'])
-    duration = t['data'][page]['duration']
-    aired = t['data'][page]['aired']['string']
-    source = t['data'][page]['source']
+
+    '''
+    variables = {
+        'search': search,
+        'page': 1,
+        'perPage': 10
+    }
+
+    url = 'https://graphql.anilist.co'
+
+    response = requests.post(url, json={'query': query, 'variables': variables})
+    response = response.json()
+
+    titleR = response['data']['Page']['media'][page]['title']['romaji']
+    titleE = response['data']['Page']['media'][page]['title']['english']
+    bannerImage = response['data']['Page']['media'][page]['bannerImage']
+    coverImage = response['data']['Page']['media'][page]['coverImage']['large']
+    ecolor = int(response['data']['Page']['media'][page]['coverImage']['color'][1:],16)
+    description = response['data']['Page']['media'][page]['description'][0:671] + '**. . .**'
+    duration = str(response['data']['Page']['media'][page]['duration'])+'min per episode'
+    if duration == None: duration = 'N/A'
+    episodes = str(response['data']['Page']['media'][page]['episodes'])
+    if episodes == None: episodes = 'N/A'
+    format = response['data']['Page']['media'][page]['format']
+    genres = response['data']['Page']['media'][page]['genres']
+    idMal = response['data']['Page']['media'][page]['idMal']
+    mal = f'https://myanimelist.net/anime/{idMal}'
+    isAdult = 'Yes' if response['data']['Page']['media'][page]['isAdult'] else 'No'
+    meanScore = str(response['data']['Page']['media'][page]['meanScore']) + '/100'
     try:
-        studio = t['data'][page]['studios'][0]['name']
+        nextAiring = response['data']['Page']['media'][page]['nextAiringEpisode']['airingAt']
+    except TypeError as type_error:
+        print(type_error)
+        nextAiring = response['data']['Page']['media'][page]['nextAiringEpisode']
+    anilist = response['data']['Page']['media'][page]['siteUrl']
+    try:
+        source = response['data']['Page']['media'][page]['source'].lower().capitalize().replace('_', ' ')
+    except AttributeError as attribute_error:
+        print(attribute_error)
+        source = 'N/A'
+    dates = ['day', 'month', 'year']
+    startDate = ''.join(str([response['data']['Page']['media'][page]['startDate'][y] for y in dates])).replace(']','').replace('[', '').replace(', ', '/')
+    if 'None' in startDate: startDate = 'N/A'
+    status = response['data']['Page']['media'][page]['status'].lower().capitalize().replace('_', ' ')
+    try: studio = response['data']['Page']['media'][page]['studios']['nodes'][0]['name']
     except IndexError as index_error:
         print(index_error)
-        studio = 'Não expecificado'
-    genres = [t['data'][page]['genres'][generos]['name'] for generos in range(len(t['data'][page]['genres']))]
-    if len(genres) == 0:
-        genres.append('Não expecificado')
-    synopsis = t['data'][page]['synopsis'][0:671] + '**. . .**'
-    rank = t['data'][page]['rank']
-    synonyms = t['data'][page]['title_synonyms']
-    english_title = t['data'][page]['title_english']
-    if english_title != None:
-        synonyms.insert(0, english_title)
-    else:
-        english_title = ' '
-    japanese_title = t['data'][page]['title_japanese']
-    if japanese_title != None:
-        synonyms.append(japanese_title)
-    else:
-        pass
-    status = t['data'][page]['status']
-    type = t['data'][page]['type']
+        studio = 'N/A'
+    synonyms = response['data']['Page']['media'][page]['synonyms']
+    entries = len(response['data']['Page']['media'])
 
+    # EMBED______________________________________________________________________________________________
 
-    #EMBED______________________________________________________________________________________________
-
-    embed = discord.Embed(title=f"{title} ({english_title})", url=url, description=synopsis,color=discord.Colour.blue())
-    embed.set_author(name=f"Type: {type} • Status: {status} • Score: {score} • Rank: {rank}",icon_url=mal)
-    embed.set_thumbnail(url=image)
+    embed = discord.Embed(title=f"{titleR} ({titleE})", url=anilist, description=description, color=ecolor)
+    embed.set_author(name=f"Type: {format} • Status: {status} • Score: {meanScore}",
+                     icon_url='https://media.discordapp.net/attachments/978016869342658630/978033399107289189/anilist.png')
+    embed.set_image(url=bannerImage)
+    embed.set_thumbnail(url=coverImage)
     embed.add_field(name="**Episodes**", value=f'`{episodes}`', inline=True)
     embed.add_field(name="**Duration**", value=f'`{duration}`', inline=True)
-    embed.add_field(name="**Release date**", value=f'`{aired}`', inline=False)
+    embed.add_field(name="**Release date**", value=f'`{startDate}`', inline=False)
     embed.add_field(name="**Sourceㅤ**", value=f'`{source}`', inline=True)
     embed.add_field(name="**Studio**", value=f'`{studio}`', inline=True)
     embed.add_field(name="**Genres**", value=' • '.join(f'`{x}`' for x in genres), inline=False)
-    embed.add_field(name="**Alternative names**", value=' • '.join(f'`{x}`' for x in synonyms), inline=False)
-    embed.add_field(name="**Find more**", value=f"[Myanimelist Page]({url})", inline=False)
-    embed.set_footer(text=f"Provided by https://myanimelist.net/  •  Page: {page+1}/{entries} ")
+    embed.add_field(name="**Alternative names**", value=' • '.join(f'`{x}`' for x in synonyms) if len(synonyms)>0 else '`N/A`', inline=False)
+    embed.add_field(name="**Find more**", value=f"[Myanimelist Page]({mal})\n[Anilist Page]({anilist})", inline=False)
+    embed.set_footer(text=f"Provided by https://anilist.co/  •  Page: {page + 1}/{entries} ")
 
     return embed
 
 
-#Buttons from anime command
+# Buttons from anime command
 class PassButttons(discord.ui.View):
-    def __init__(self, page:int, search:str, entries:int):
+    def __init__(self, page: int, search: str, entries: int):
         super().__init__(timeout=30.0)
         self.response = None
-        self.page=page
-        self.search=search
-        self.entries=entries
+        self.page = page
+        self.search = search
+        self.entries = entries
 
 
-    async def on_timeout(self) -> None:  #Deactivate buttons after timeout
+    async def on_timeout(self) -> None:  # Deactivate buttons after timeout
         for child in self.children:
             child.disabled = True
         await self.response.edit(view=self)
 
-    #First Entrie
-    @discord.ui.button(label='«', style=discord.ButtonStyle.blurple)
+
+    # First Entrie
+    @discord.ui.button(label='«', style=discord.ButtonStyle.blurple, custom_id='first', disabled=True)
     async def first(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.page=0
-
+        first = [x for x in self.children if x.custom_id == 'first'][0]
+        previous = [x for x in self.children if x.custom_id == 'previous'][0]
+        next = [x for x in self.children if x.custom_id == 'next'][0]
+        last = [x for x in self.children if x.custom_id == 'last'][0]
+        self.page = 0
+        first.disabled = True
+        previous.disabled = True
+        next.disabled = False
+        last.disabled = False
+        await self.response.edit(view=self)
         await interaction.response.edit_message(embed=get_anime(self.page, self.search))
 
-
-    #Previous Entrie
-    @discord.ui.button(label='◀', style=discord.ButtonStyle.blurple)
+    # Previous Entrie
+    @discord.ui.button(label='◀', style=discord.ButtonStyle.blurple, custom_id='previous', disabled=True)
     async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if self.page == 0:
-            self.page = self.entries-1
-        else:
-            self.page -= 1
+        first = [x for x in self.children if x.custom_id == 'first'][0]
+        previous = [x for x in self.children if x.custom_id == 'previous'][0]
+        next = [x for x in self.children if x.custom_id == 'next'][0]
+        last = [x for x in self.children if x.custom_id == 'last'][0]
+        self.page -= 1
+        next.disabled = False
+        last.disabled = False
+        if self.page==0:
+            first.disabled=True
+            previous.disabled=True
 
-
+        await self.response.edit(view=self)
         await interaction.response.edit_message(embed=get_anime(self.page, self.search))
 
-    #Next Entrie
-    @discord.ui.button(label='▶', style=discord.ButtonStyle.blurple)
+    # Next Entrie
+    @discord.ui.button(label='▶', style=discord.ButtonStyle.blurple, custom_id='next')
     async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if self.page == self.entries-1:
-            self.page=0
-        else:
-            self.page += 1
-
+        first = [x for x in self.children if x.custom_id == 'first'][0]
+        previous = [x for x in self.children if x.custom_id == 'previous'][0]
+        next = [x for x in self.children if x.custom_id == 'next'][0]
+        last = [x for x in self.children if x.custom_id == 'last'][0]
+        self.page += 1
+        first.disabled = False
+        previous.disabled = False
+        if self.page==self.entries-1:
+            next.disabled = True
+            last.disabled = True
+        await self.response.edit(view=self)
         await interaction.response.edit_message(embed=get_anime(self.page, self.search))
 
-
-    #Last Entrie
-    @discord.ui.button(label='»', style=discord.ButtonStyle.blurple)
+    # Last Entrie
+    @discord.ui.button(label='»', style=discord.ButtonStyle.blurple, custom_id='last')
     async def last(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.page=self.entries-1
-
+        first = [x for x in self.children if x.custom_id == 'first'][0]
+        previous = [x for x in self.children if x.custom_id == 'previous'][0]
+        next = [x for x in self.children if x.custom_id == 'next'][0]
+        last = [x for x in self.children if x.custom_id == 'last'][0]
+        self.page = self.entries - 1
+        next.disabled = True
+        last.disabled = True
+        first.disabled = False
+        previous.disabled = False
+        await self.response.edit(view=self)
         await interaction.response.edit_message(embed=get_anime(self.page, self.search))
 
-
-    #Deactivate buttons
+    # Deactivate buttons
     @discord.ui.button(label="✖", style=discord.ButtonStyle.red)
     async def disable_all_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         for item in self.children:
@@ -134,36 +219,53 @@ class PassButttons(discord.ui.View):
         await interaction.response.edit_message(view=self)
 
 
-
-
-
 class MalCommands(commands.Cog):
 
-    def __init__(self, client:commands.Bot) -> None:
+    def __init__(self, client: commands.Bot) -> None:
         self.client = client
 
-
-    #ANIME COMMAND INFO
+    # ANIME COMMAND INFO
     @app_commands.command(name='anime', description='Searchs for an anime and display information about it!')
     @app_commands.describe(search='Name of the anime')
+    async def anime(self, interaction: discord.Interaction, search: str):
+        page = 0
+        #query request
+        query = '''
+            query ($id: Int, $page: Int, $perPage: Int, $search: String) {
+                Page (page: $page, perPage: $perPage) {
+                    pageInfo {
+                        total
+                    }
+                    media (id: $id, search: $search, type: ANIME) {
+                        id
+                    }
+            }
+    }   
+'''
+        variables = {
+            'search': search,
+            'page': 1,
+            'perPage': 10
+        }
+        url = 'https://graphql.anilist.co'
+        response = requests.post(url, json={'query': query, 'variables': variables})
+        response = response.json()
 
-    async def anime(self, interaction: discord.Interaction, search:str):
-        page=0
-        r = requests.get(f'http://staging.jikan.moe/v4/anime?q={search}&nsfw')
-        t = r.json()
-        entries = t['pagination']['items']['count']
-        if entries <= 15:
+        entries = len(response['data']['Page']['media'])
+
+        if entries <= 10:
             pass
         else:
-            entries = 15
+            entries = 10
 
-
-        #Button call
-        view=PassButttons(page,search,entries)
-        await interaction.response.send_message(embed=get_anime(page,search), view=view)
+        # Button call
+        view = PassButttons(page, search, entries)
+        await interaction.response.send_message(embed=get_anime(page, search), view=view)
         out = await interaction.original_message()
-        view.response= out
+        view.response = out
 
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(MalCommands(client))
+
+

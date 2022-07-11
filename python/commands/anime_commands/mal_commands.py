@@ -253,10 +253,6 @@ class MalCommands(commands.Cog):
 
         entries = len(response['data']['Page']['media'])
 
-        if entries <= 10:
-            pass
-        else:
-            entries = 10
 
         # Button call
         view = PassButttons(page, search, entries)

@@ -1,9 +1,9 @@
 import discord
-import requests
+import json
+from removebg import RemoveBg
 from discord import app_commands
 from discord.ext import commands
 from discord.app_commands import Choice
-from pprint import pprint
 
 
 class Util(commands.Cog):
@@ -32,6 +32,19 @@ class Util(commands.Cog):
 
             await interaction.response.send_message(embed=embed)
 
+
+    #Removes Background from image
+    @app_commands.command(name='remove-background', description="Removes background of a image.")
+    async def remove_bg(self, interaction: discord.Interaction, image: discord.Attachment):
+
+        with open('token.json') as f:
+            data = json.load(f)
+            api_key = data["removebg"]
+
+        rmbg = RemoveBg(api_key, "error.log")
+        rmbg.remove_background_from_img_url(image.url)
+
+        await interaction.response.send_message(file=discord.File('no-bg.png'))
 
 
 async def setup(client: commands.Bot) -> None:

@@ -71,13 +71,14 @@ def get_anime(page: int, search: str):
 
     response = requests.post(url, json={'query': query, 'variables': variables})
     response = response.json()
+    pprint(response)
 
     titleR = response['data']['Page']['media'][page]['title']['romaji']
     titleE = response['data']['Page']['media'][page]['title']['english']
     bannerImage = response['data']['Page']['media'][page]['bannerImage']
     coverImage = response['data']['Page']['media'][page]['coverImage']['large']
     ecolor = int(response['data']['Page']['media'][page]['coverImage']['color'][1:],16)
-    description = response['data']['Page']['media'][page]['description'][0:671] + '**. . .**'
+    description = response['data']['Page']['media'][page]['description'][0:671].replace('<br>', ' ') + '**. . .**'
     duration = str(response['data']['Page']['media'][page]['duration'])+'min per episode'
     if duration == None: duration = 'N/A'
     episodes = str(response['data']['Page']['media'][page]['episodes'])

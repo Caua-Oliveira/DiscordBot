@@ -46,6 +46,19 @@ class Util(commands.Cog):
 
         await interaction.response.send_message(file=discord.File('no-bg.png'))
 
+    @app_commands.command(name='print', description='Sends Message embed')
+    async def print(self, interaction: discord.Interaction, id:str):
+        idmsg = int(id)
+
+        try:
+            a = await interaction.channel.fetch_message(idmsg)
+        except:
+            return await interaction.response.send_message('Message Not Found', ephemeral=True)
+
+        embed = discord.Embed(description=a.content,color=discord.Colour.blue(), timestamp=a.created_at.astimezone())
+        embed.set_author(name=a.author, icon_url=a.author.avatar.url)
+
+        await interaction.response.send_message(embed=embed)
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Util(client))

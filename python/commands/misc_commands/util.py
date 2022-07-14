@@ -43,8 +43,10 @@ class Util(commands.Cog):
 
         rmbg = RemoveBg(api_key, "error.log")
         rmbg.remove_background_from_img_url(image.url)
-
-        await interaction.response.send_message(file=discord.File('no-bg.png'))
+        try:
+            await interaction.response.send_message(file=discord.File('no-bg.png'))
+        except:
+            await interaction.response.send_message(file=discord.File('no-bg.png'))
 
     @app_commands.command(name='print', description='Sends Message embed')
     async def print(self, interaction: discord.Interaction, id:str):
@@ -59,6 +61,10 @@ class Util(commands.Cog):
         embed.set_author(name=a.author, icon_url=a.author.avatar.url)
 
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name='ping')
+    async def ping(self, interaction: discord.Interaction):
+        await interaction.response.send_message('Pong!')
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Util(client))

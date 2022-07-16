@@ -1,25 +1,20 @@
 import discord
-import json
 import requests
+import json
 import asyncio
-from pprint import pprint
 import random
-from removebg import RemoveBg
 from discord import app_commands
 from discord.ext import commands
-from discord.app_commands import Choice
+
 
 
 def choose_question():
-    questions = {
-        'words related to duck that start with the letter b': 'https://api.datamuse.com/words?ml=duck&sp=b*&max=10',
-        'words related to spoon that end with the letter a': 'https://api.datamuse.com/words?ml=spoon&sp=*a&max=10',
-        'words that rhyme with jail': 'https://api.datamuse.com/words?rel_rhy=jail',
-        'adjectives that are often used to describe ocean': 'https://api.datamuse.com/words?rel_jjb=ocean'}
 
-    question, answers = random.choice(list(questions.items()))
-    return question, answers
+    with open('questions.json') as f:
+        questions = json.load(f)
 
+    question, answer = random.choice(list(questions.items()))
+    return question, answer
 
 
 class WordGame(commands.Cog):
@@ -30,11 +25,12 @@ class WordGame(commands.Cog):
     async def repeat(self, interaction: discord.Interaction, question: str, answers:str):
         r = requests.get(answers)
         r = r.json()
-        await interaction.channel.send(question)
+        embed = discord.Embed(title='Question:', description=f'{question}',color=discord.Colour.blue())
+        await interaction.channel.send(embed=embed)
 
         def check(m):
             for i in range(len(r)):
-                if m.content == r[i]['word']:
+                if m.content.lower().strip() == r[i]['word']:
                     return True
             return False
 
@@ -42,48 +38,63 @@ class WordGame(commands.Cog):
         await interaction.channel.send(f'+1 point for {msg.author.mention}')
         return msg.author.name
 
+
+
     @app_commands.command(name='word-game')
     async def wordgame(self, interaction: discord.Interaction):
         await interaction.response.send_message('The game will Start!')
         await asyncio.sleep(5)
         await interaction.edit_original_message(content='The game started!')
 
-        dic = {'Trapyy': 0, 'Others': 0}
+        dic = {}
 
-        question,answers = choose_question()
-        a = await self.repeat(interaction, question, answers)
-        if a == 'Trapyy':
-            dic['Trapyy']+=1
+        question, answer = choose_question()
+        a = await self.repeat(interaction, question, answer)
+        if a in dic:
+            dic[f'{a}']+=1
         else:
-            dic['fake']+=1
-        b = await self.repeat(interaction, question, answers)
-        if b == 'Trapyy':
-            dic['Trapyy']+=1
+            dic[a]=1
+        question, answer = choose_question()
+        b = await self.repeat(interaction, question, answer)
+        if b in dic:
+            dic[f'{b}'] += 1
         else:
-            dic['fake']+=1
+            dic[b] = 1
+        question, answer = choose_question()
+        c = await self.repeat(interaction, question, answer)
+        if c in dic:
+            dic[f'{c}'] += 1
+        else:
+            dic[c] = 1
+        question, answer = choose_question()
+        d = await self.repeat(interaction, question, answer)
+        if d in dic:
+            dic[f'{d}'] += 1
+        else:
+            dic[d] = 1
+        question, answer = choose_question()
+        e = await self.repeat(interaction, question, answer)
+        if e in dic:
+            dic[f'{e}'] += 1
+        else:
+            dic[e] = 1
 
-        print(dic)
-        await interaction.channel.send(str(dic))
+        sortedD = dict(sorted(dic.items(),
+                                  key=lambda item: item[1],
+                                  reverse=True))
 
+        await interaction.channel.send('Game Ended! Waiting for results')
+        await asyncio.sleep(3)
 
+        players = [f"`{i}`" for i in list(sortedD.keys())]
+        points = [f"{i}" for i in list(sortedD.values())]
 
+        embed = discord.Embed(title= f"🏆Congratulations @{list(sortedD.keys())[0]}🏆\nﾠ",color=discord.Colour.blue())
+        embed.set_author(name=f"We have a winner!\n",icon_url="https://cdn.discordapp.com/avatars/989409439956213830/b9336d36eb09936ca2405830600c1bc3.png?size=1024")
+        embed.set_image(url="https://cdn.discordapp.com/attachments/808294539739529236/997973698575351859/no-bg.png")
+        embed.add_field(name="Scoreboard", value= '\n'.join(f"{players[o]}- **{points[o]}**" for o in range(len(players))),inline=False)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        await interaction.channel.send(embed=embed)
 
 
 async def setup(client: commands.Bot) -> None:

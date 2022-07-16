@@ -71,7 +71,6 @@ def get_anime(page: int, search: str):
 
     response = requests.post(url, json={'query': query, 'variables': variables})
     response = response.json()
-    pprint(response)
 
     titleR = response['data']['Page']['media'][page]['title']['romaji']
     titleE = response['data']['Page']['media'][page]['title']['english']

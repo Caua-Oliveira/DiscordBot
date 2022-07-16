@@ -4,3 +4,4 @@ python/test.py
 python/error.log
 python/no-bg.png
 python/image.png
+*.json

@@ -16,7 +16,8 @@ class MyBot(commands.Bot):
         self.initial_extensions = [
             'commands.anime_commands.mal_commands',
             'commands.anime_commands.waifu_commands',
-            'commands.misc_commands.util'
+            'commands.misc_commands.util',
+            'commands.misc_commands.word_minigame'
         ]
     #Syncing extensions
     async def setup_hook(self):

@@ -3,7 +3,7 @@ import json
 from discord.ext import commands, tasks
 from itertools import cycle
 
-games = cycle(['Minecraft', 'Hytale', 'Half-Life 3', 'Tetris', 'Roblox'])
+games = cycle(['Minecraft', 'Hytale', 'Half-Life 3', 'Tetris', 'Roblox', 'Stardew Valley', 'Terraria', 'ULTRAKILL'])
 
 class MyBot(commands.Bot):
 

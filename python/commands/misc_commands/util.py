@@ -1,5 +1,6 @@
 import discord
 import json
+import pyfiglet
 from removebg import RemoveBg
 from discord import app_commands
 from discord.ext import commands
@@ -65,6 +66,37 @@ class Util(commands.Cog):
     @app_commands.command(name='ping')
     async def ping(self, interaction: discord.Interaction):
         await interaction.response.send_message('Pong!')
+        
+    @app_commands.command(name='change-text')
+    @app_commands.describe(
+        font='ascii font')
+    @app_commands.choices(
+        font=[
+            Choice(name='morse', value='morse'),
+            Choice(name='bell', value='bell'),
+            Choice(name='block', value='block'),
+            Choice(name='contessa', value='contessa'),
+            Choice(name='cybermedium', value='cybermedium'),
+            Choice(name='doom', value='doom'),
+            Choice(name='invita', value='invita'),
+            Choice(name='isometric1', value='isometric1'),
+            Choice(name='isometric2', value='isometric2'),
+            Choice(name='isometric3', value='isometric3'),
+            Choice(name='isometric4', value='isometric4'),
+            Choice(name='mini', value='mini'),
+            Choice(name='banner', value='banner3'),
+            Choice(name='moscow', value='moscow'),
+            Choice(name='keyboard', value='smkeyboard'),
+            Choice(name='roman', value='roman'),
+            Choice(name='starwars', value='starwars'),
+            Choice(name='straight', value='straight'),
+        ]
+    )
+    async def change_text(self, interaction: discord.Interaction, font:str, *, text:str):
+        try:
+            await interaction.response.send_message(f"```{pyfiglet.figlet_format(text, font=font)}```")
+        except:
+            await interaction.response.send_message('You need to type fewer characters', ephemeral=True)
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Util(client))

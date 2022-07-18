@@ -1,10 +1,13 @@
 import discord
 import requests
 import urllib.parse
+from saucenao_api import SauceNao
 from pprint import pprint
 from discord import app_commands
 from discord.ext import commands
 from discord.app_commands import Choice
+
+
 
 class ReloadButton(discord.ui.View):
     def __init__(self, categoria:str):
@@ -78,8 +81,8 @@ class WaifuCommands(commands.Cog):
 
 
 
-    @app_commands.command(name='find-anime', description="Find anime by the image that you use!")
-    async def find_anime(self, interaction: discord.Interaction, image: discord.Attachment):
+    @app_commands.command(name='find-anime-episode', description="Find the anime episode/name by the image that you use!")
+    async def find_anime_episode(self, interaction: discord.Interaction, image: discord.Attachment):
 
         await interaction.response.defer()
         image = image.url
@@ -129,6 +132,40 @@ class WaifuCommands(commands.Cog):
 
         await interaction.edit_original_message(embed=embed)
 
+    @app_commands.command(name='find-original-art', description="Find original art/artist by the image that you use!")
+    async def find_original_art(self, interaction: discord.Interaction, image: discord.Attachment):
+        sauce = SauceNao('24920e17f404cf78f146f3773d38c68424bf33c6').from_url(image.url)
+
+        thumb = sauce[0].thumbnail
+        similarity = sauce[0].similarity
+        title = sauce[0].title
+        urls = sauce[0].urls
+        dict = {}
+        for x in urls:
+            if 'danbooru' in x:
+                dict['danbooru'] = x
+            elif 'gelbooru' in x:
+                dict['gelbooru'] = x
+            elif 'yande.re' in x:
+                dict['yande.re'] = x
+            elif 'artstation' in x:
+                dict['artstation'] = x
+        author = sauce[0].author
+        try:
+            source = sauce.raw['results'][0]['data']['source']
+        except:
+            source = False
+        embed = discord.Embed(color=discord.Colour.blue())
+        embed.set_author(name=f'Titles: {title} • Similarity: {similarity}',
+                         icon_url='https://cdn.discordapp.com/attachments/989647128139808869/998717737452978226/unknown.png')
+        embed.set_image(url=thumb)
+        embed.add_field(name='**Author:**', value=author, inline=False)
+        embed.add_field(name='**Urls:**', value=''.join(f"[{x}]({y})\n" for x,y in dict.items()), inline=False)
+        embed.set_footer(text=f"Provided by https://saucenao.com/ ")
+        if source:
+            embed.add_field(name='**Source:**', value=f'[Original post]({source})', inline=False)
+
+        await interaction.response.send_message(embed=embed)
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(WaifuCommands(client))

@@ -6,14 +6,13 @@ import random
 from discord import app_commands
 from discord.ext import commands
 
+with open('questions.json') as f:
+    questions = json.load(f)
 
-
-def choose_question(): #Chooses the questions randomly
-
-    with open('questions.json') as f:
-        questions = json.load(f)
+def choose_question(questions): #Chooses the questions randomly
 
     question, answer = random.choice(list(questions.items()))
+    del questions[question]
     return question, answer
 
 
@@ -43,6 +42,9 @@ class WordGame(commands.Cog):
     #Minigame command
     @app_commands.command(name='word-game')
     async def wordgame(self, interaction: discord.Interaction):
+        with open('questions.json') as f:
+            questions = json.load(f)
+
         await interaction.response.send_message('The game will Start!')
         await asyncio.sleep(5)
         await interaction.edit_original_message(content='The game started!')
@@ -50,33 +52,33 @@ class WordGame(commands.Cog):
         scoreboard = {}
 
         #Calling the functions to choose and send the questions
-        question, answer = choose_question()
+        question, answer = choose_question(questions)
         correct_guesser = await self.handle_answers_round(interaction, question, answer)
         #Add correct guesser to scoreboard or add 1 point to them
         scoreboard[correct_guesser]=1
 
-        question, answer = choose_question()
+        question, answer = choose_question(questions)
         correct_guesser = await self.handle_answers_round(interaction, question, answer)
         if correct_guesser in scoreboard:
             scoreboard[f'{correct_guesser}'] += 1
         else:
             scoreboard[correct_guesser] = 1
 
-        question, answer = choose_question()
+        question, answer = choose_question(questions)
         correct_guesser = await self.handle_answers_round(interaction, question, answer)
         if correct_guesser in scoreboard:
             scoreboard[f'{correct_guesser}'] += 1
         else:
             scoreboard[correct_guesser] = 1
 
-        question, answer = choose_question()
+        question, answer = choose_question(questions)
         correct_guesser = await self.handle_answers_round(interaction, question, answer)
         if correct_guesser in scoreboard:
             scoreboard[f'{correct_guesser}'] += 1
         else:
             scoreboard[correct_guesser] = 1
 
-        question, answer = choose_question()
+        question, answer = choose_question(questions)
         correct_guesser = await self.handle_answers_round(interaction, question, answer)
         if correct_guesser in scoreboard:
             scoreboard[f'{correct_guesser}'] += 1
@@ -94,9 +96,9 @@ class WordGame(commands.Cog):
         players = [f"`{i}`" for i in list(sorted_scoreboard.keys())]
         points = [f"{i}" for i in list(sorted_scoreboard.values())]
 
-        embed = discord.Embed(title= f"🏆Congratulations @{list(sorted_scoreboard.keys())[0]} !!🏆\nﾠ",color=discord.Colour.blue())
-        embed.set_author(name=f"We have a winner!\n",icon_url="https://cdn.discordapp.com/avatars/989409439956213830/b9336d36eb09936ca2405830600c1bc3.png?size=1024")
-        embed.set_image(url="https://cdn.discordapp.com/attachments/808294539739529236/997973698575351859/no-bg.png")
+        embed = discord.Embed(title= f"Congratulations @{list(sorted_scoreboard.keys())[0]} !!\nﾠ",color=discord.Colour.blue())
+        embed.set_author(name=f"We have a winner!\n",icon_url="https://cdn.discordapp.com/avatars/989409439956213830/8f7ddfeeb55e16b3afbf8b783d98b699.png?size=1024")
+        embed.set_image(url="https://cdn.discordapp.com/attachments/989647128139808869/998440223052681306/Screenshot_3.png")
         embed.add_field(name="Scoreboard", value= '\n'.join(f"{players[o]}- **{points[o]}**" for o in range(len(players))),inline=False)
 
         await interaction.channel.send(embed=embed)

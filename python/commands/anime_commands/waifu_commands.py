@@ -134,6 +134,8 @@ class WaifuCommands(commands.Cog):
 
     @app_commands.command(name='find-original-art', description="Find original art/artist by the image that you use!")
     async def find_original_art(self, interaction: discord.Interaction, image: discord.Attachment):
+
+        await interaction.response.defer()
         sauce = SauceNao('24920e17f404cf78f146f3773d38c68424bf33c6').from_url(image.url)
 
         thumb = sauce[0].thumbnail
@@ -150,6 +152,8 @@ class WaifuCommands(commands.Cog):
                 dict['yande.re'] = x
             elif 'artstation' in x:
                 dict['artstation'] = x
+            elif 'pixiv' in x:
+                dict['pixiv'] = x
         author = sauce[0].author
         try:
             source = sauce.raw['results'][0]['data']['source']
@@ -165,7 +169,7 @@ class WaifuCommands(commands.Cog):
         if source:
             embed.add_field(name='**Source:**', value=f'[Original post]({source})', inline=False)
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.edit_original_message(embed=embed)
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(WaifuCommands(client))

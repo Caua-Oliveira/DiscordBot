@@ -65,7 +65,8 @@ class Util(commands.Cog):
 
     @app_commands.command(name='ping')
     async def ping(self, interaction: discord.Interaction):
-        await interaction.response.send_message('Pong!')
+
+        await interaction.response.send_message('Pong!𝕒𝕤𝕕𝕒𝕤')
         
     @app_commands.command(name='change-text')
     @app_commands.describe(

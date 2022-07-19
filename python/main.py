@@ -18,7 +18,8 @@ class MyBot(commands.Bot):
             'commands.anime_commands.waifu_commands',
             'commands.anime_commands.manga_command',
             'commands.misc_commands.util',
-            'commands.misc_commands.word_minigame'
+            'commands.misc_commands.word_minigame',
+            'commands.help_command.help_command'
         ]
     #Syncing extensions
     async def setup_hook(self):

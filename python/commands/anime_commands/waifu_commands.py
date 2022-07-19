@@ -142,18 +142,18 @@ class WaifuCommands(commands.Cog):
         similarity = sauce[0].similarity
         title = sauce[0].title
         urls = sauce[0].urls
-        dict = {}
+        sites = {}
         for x in urls:
             if 'danbooru' in x:
-                dict['danbooru'] = x
+                sites['danbooru'] = x
             elif 'gelbooru' in x:
-                dict['gelbooru'] = x
+                sites['gelbooru'] = x
             elif 'yande.re' in x:
-                dict['yande.re'] = x
+                sites['yande.re'] = x
             elif 'artstation' in x:
-                dict['artstation'] = x
+                sites['artstation'] = x
             elif 'pixiv' in x:
-                dict['pixiv'] = x
+                sites['pixiv'] = x
         author = sauce[0].author
         try:
             source = sauce.raw['results'][0]['data']['source']
@@ -164,7 +164,7 @@ class WaifuCommands(commands.Cog):
                          icon_url='https://cdn.discordapp.com/attachments/989647128139808869/998717737452978226/unknown.png')
         embed.set_image(url=thumb)
         embed.add_field(name='**Author:**', value=author, inline=False)
-        embed.add_field(name='**Urls:**', value=''.join(f"[{x}]({y})\n" for x,y in dict.items()), inline=False)
+        embed.add_field(name='**Urls:**', value=''.join(f"[{x}]({y})\n" for x,y in sites.items()), inline=False)
         embed.set_footer(text=f"Provided by https://saucenao.com/ ")
         if source:
             embed.add_field(name='**Source:**', value=f'[Original post]({source})', inline=False)

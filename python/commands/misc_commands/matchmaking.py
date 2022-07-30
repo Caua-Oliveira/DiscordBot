@@ -39,7 +39,6 @@ def searching_match_embed(players):
     return embed
 
 
-
 #Used when there are enough players to play a match
 async def match_found(players, interaction: discord.Interaction):
 
@@ -86,6 +85,8 @@ async def match_found(players, interaction: discord.Interaction):
     matched_players["sup_red"] = '<:SUP:1002810744825450537>❔ ' + players["sup"][0]
     remove_matched_players(players, players["sup"][0])
 
+
+
     #embed
     match = discord.Embed(title='Match Found\nㅤ', colour=discord.Colour.green())
     match.add_field(name='Blue side', value=f'{matched_players["top_blue"]}\n{matched_players["jungle_blue"]}\n{matched_players["mid_blue"]}\n{matched_players["adc_blue"]}\n{matched_players["sup_blue"]}',
@@ -113,6 +114,7 @@ class RolesButtons(discord.ui.View):
                     self.players["mid"]) >= 2 and len(self.players["adc"]) >= 2 and len(self.players["sup"]) >= 2:
                 await match_found(self.players, interaction)
                 return interaction.response
+
             await interaction.message.delete()
             await interaction.channel.send(embed=searching_match_embed(self.players), view=self)
 
@@ -122,6 +124,11 @@ class RolesButtons(discord.ui.View):
     async def jungle(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.mention not in self.players["jungle"]:
             self.players["jungle"].append(interaction.user.mention)
+            if len(self.players["top"]) >= 2 and len(self.players["jungle"]) >= 2 and len(
+                    self.players["mid"]) >= 2 and len(self.players["adc"]) >= 2 and len(self.players["sup"]) >= 2:
+                await match_found(self.players, interaction)
+                return interaction.response
+
             await interaction.message.delete()
             await interaction.channel.send(embed=searching_match_embed(self.players), view=self)
 
@@ -130,6 +137,11 @@ class RolesButtons(discord.ui.View):
     async def mid(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.mention not in self.players["mid"]:
             self.players["mid"].append(interaction.user.mention)
+            if len(self.players["top"]) >= 2 and len(self.players["jungle"]) >= 2 and len(
+                    self.players["mid"]) >= 2 and len(self.players["adc"]) >= 2 and len(self.players["sup"]) >= 2:
+                await match_found(self.players, interaction)
+                return interaction.response
+
             await interaction.message.delete()
             await interaction.channel.send(embed=searching_match_embed(self.players), view=self)
 
@@ -137,6 +149,11 @@ class RolesButtons(discord.ui.View):
     async def adc(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.mention not in self.players["adc"]:
             self.players["adc"].append(interaction.user.mention)
+            if len(self.players["top"]) >= 2 and len(self.players["jungle"]) >= 2 and len(
+                    self.players["mid"]) >= 2 and len(self.players["adc"]) >= 2 and len(self.players["sup"]) >= 2:
+                await match_found(self.players, interaction)
+                return interaction.response
+
             await interaction.message.delete()
             await interaction.channel.send(embed=searching_match_embed(self.players), view=self)
 
@@ -144,8 +161,14 @@ class RolesButtons(discord.ui.View):
     async def sup(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.mention not in self.players["sup"]:
             self.players["sup"].append(interaction.user.mention)
+            if len(self.players["top"]) >= 2 and len(self.players["jungle"]) >= 2 and len(
+                    self.players["mid"]) >= 2 and len(self.players["adc"]) >= 2 and len(self.players["sup"]) >= 2:
+                await match_found(self.players, interaction)
+                return interaction.response
+
             await interaction.message.delete()
             await interaction.channel.send(embed=searching_match_embed(self.players), view=self)
+
 
 #The command root
 class Matchmaking(commands.Cog):

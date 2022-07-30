@@ -14,12 +14,13 @@ class MyBot(commands.Bot):
             application_id=989409439956213830
         )
         self.initial_extensions = [
-            'commands.anime_commands.anime_command',
-            'commands.anime_commands.waifu_commands',
-            'commands.anime_commands.manga_command',
-            'commands.misc_commands.util',
-            'commands.misc_commands.word_minigame',
-            'commands.help_command.help_command'
+            #'commands.anime_commands.anime_command',
+            #'commands.anime_commands.waifu_commands',
+            #'commands.anime_commands.manga_command',
+            #'commands.misc_commands.util',
+            #'commands.misc_commands.word_minigame',
+            #'commands.help_command.help_command',
+            'commands.misc_commands.matchmaking',
         ]
     #Syncing extensions
     async def setup_hook(self):

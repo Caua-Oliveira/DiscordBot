@@ -30,6 +30,7 @@ class AcceptMatch(discord.ui.View):
         self.refused = False
         self.matched_players = matched_players
 
+
     #Cancels the match on timeout
     async def on_timeout(self) -> None:
         if not self.refused:
@@ -41,6 +42,7 @@ class AcceptMatch(discord.ui.View):
             await self.response.edit(embed=match, view=None)
         else:
             return
+
 
     #Accept Button
     @discord.ui.button(label='Accept', style=discord.ButtonStyle.green)
@@ -133,6 +135,7 @@ async def add_to_queue(players, lane, interaction: discord.Interaction):
     #Deletes previous queue message and updates it
     await interaction.message.delete()
     await interaction.channel.send(embed=searching_match_embed(players), view=RolesButtons(players))
+
 
 #Buttons to choose your role
 class RolesButtons(discord.ui.View):

@@ -193,9 +193,7 @@ class Matchmaking(commands.Cog):
             "sup":["tiago", "gui"]
         }
 
-
         await interaction.channel.send(embed=searching_match_embed(players),view=RolesButtons(players))
-
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Matchmaking(client))

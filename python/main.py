@@ -20,7 +20,8 @@ class MyBot(commands.Bot):
             #'commands.misc_commands.util',
             #'commands.misc_commands.word_minigame',
             #'commands.help_command.help_command',
-            'commands.misc_commands.matchmaking',
+            #'commands.misc_commands.matchmaking',
+            'commands.misc_commands.img_to_ascii',
         ]
     #Syncing extensions
     async def setup_hook(self):

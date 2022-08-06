@@ -105,11 +105,11 @@ async def match_found(players, interaction: discord.Interaction):
     lanes = ["top", "jungle", "mid", "adc", "sup", "top", "jungle", "mid", "adc", "sup"]
     emotes = ['<:TOP:1002810797946318849>❔ ', '<:JUNGLE:1002810786219053086>❔ ', '<:MID:1002810772151357500>❔ ', '<:ADC:1002810758419189851>❔ ', '<:SUP:1002810744825450537>❔ ',
               '<:TOP:1002810797946318849>❔ ', '<:JUNGLE:1002810786219053086>❔ ', '<:MID:1002810772151357500>❔ ', '<:ADC:1002810758419189851>❔ ', '<:SUP:1002810744825450537>❔ ']
-
+    print(players)
     for i in range(10):
-        lane = lanes[i]
+        lane = lanes[i] if i <=4 else lanes[i-5]
         key = list(matched_players.keys())[i]
-        matched_players[key] = emotes[i] + players[lane][0]
+        matched_players[key] = emotes[i] + players[lane][0]   ##Example: matched_players["top_blue"] = '<:TOP:1002810797946318849>❔ (name of the person)}'
         remove_matched_players(players, players[lane][0])
 
     #Embed
@@ -127,9 +127,11 @@ async def match_found(players, interaction: discord.Interaction):
 
 #Used to add players to the queue
 async def add_to_queue(players, lane, interaction: discord.Interaction):
-    players[lane].append(interaction.user.mention)
+    all = players['top'][:2] + players['jungle'][:2] + players['mid'][:2] + players['adc'][:2] + players['sup'][:2]
+    all2 = players['top'][:3] + players['jungle'][:3] + players['mid'][:3] + players['adc'][:3] + players['sup'][:3]
     if len(players["top"]) >= 2 and len(players["jungle"]) >= 2 and len(
-            players["mid"]) >= 2 and len(players["adc"]) >= 2 and len(players["sup"]) >= 2:
+            players["mid"]) >= 2 and len(players["adc"]) >= 2 and len(players["sup"]) >= 2 and set(all) == all or len(set(all2)) >= 10 and len(players["top"]) >= 2 and len(players["jungle"]) >= 2 and len(
+            players["mid"]) >= 2 and len(players["adc"]) >= 2 and len(players["sup"]) >= 2 :
         await match_found(players, interaction)
 
     #Deletes previous queue message and updates it
@@ -148,6 +150,7 @@ class RolesButtons(discord.ui.View):
     @discord.ui.button(emoji='<:TOP:1002810797946318849>', label= 'Top', style=discord.ButtonStyle.gray)
     async def top(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.mention not in self.players["top"]:
+            self.players['top'].append(interaction.user.mention)
             await add_to_queue(self.players, "top", interaction)
 
 
@@ -155,6 +158,7 @@ class RolesButtons(discord.ui.View):
     @discord.ui.button(emoji='<:JUNGLE:1002810786219053086>', label= 'Jungle', style=discord.ButtonStyle.gray)
     async def jungle(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.mention not in self.players["jungle"]:
+            self.players['jungle'].append(interaction.user.mention)
             await add_to_queue(self.players, "jungle", interaction)
 
 
@@ -162,6 +166,7 @@ class RolesButtons(discord.ui.View):
     @discord.ui.button(emoji='<:MID:1002810772151357500>', label= 'Mid', style=discord.ButtonStyle.gray)
     async def mid(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.mention not in self.players["mid"]:
+            self.players['mid'].append(interaction.user.mention)
             await add_to_queue(self.players, "mid", interaction)
 
 
@@ -169,6 +174,7 @@ class RolesButtons(discord.ui.View):
     @discord.ui.button(emoji='<:ADC:1002810758419189851>', label= 'Adc', style=discord.ButtonStyle.gray)
     async def adc(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.mention not in self.players["adc"]:
+            self.players['adc'].append(interaction.user.mention)
             await add_to_queue(self.players, "adc", interaction)
 
 
@@ -176,6 +182,7 @@ class RolesButtons(discord.ui.View):
     @discord.ui.button(emoji='<:SUP:1002810744825450537>', label= 'Sup', style=discord.ButtonStyle.gray)
     async def sup(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.mention not in self.players["sup"]:
+            self.players['sup'].append(interaction.user.mention)
             await add_to_queue(self.players, "sup", interaction)
 
 
@@ -190,7 +197,7 @@ class Matchmaking(commands.Cog):
 
         players = {
             "top":["joao"],
-            "jungle":["pedro", "lucio", "luan"],
+            "jungle":["pedro", "lucio"],
             "mid":["carla", "joaquin"],
             "adc":["edu", "carl"],
             "sup":["tiago", "gui"]
